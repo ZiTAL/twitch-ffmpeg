@@ -107,9 +107,9 @@ class TwitchConfig:
         path = TwitchConfig.getPath()
         token_file = path+TwitchConfig.token_file
         try:
-                with open(token_file, 'w') as fp:
-                    json.dump(data, fp)
-                return True
+            with open(token_file, 'w') as fp:
+                json.dump(data, fp)
+            return True
         except:
             print("TwitchConfig.setToken(): Error writing token to file: "+token_file)
             return False
