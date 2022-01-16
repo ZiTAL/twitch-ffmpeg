@@ -1,0 +1,10 @@
+[
+    "/usr/bin/ffmpeg ",
+    "-nostats -loglevel 0 ",
+    "-f concat ",
+    "-safe 0 ",
+    "-re ",
+    "-i $1 ",
+    "-codec copy ",
+    "-f flv "
+]

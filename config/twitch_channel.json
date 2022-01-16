@@ -1,0 +1,5 @@
+{
+	"channel":	"twitch_channel_name",
+	"key":		"twitch_key",
+	"server":	"stream_url"
+}

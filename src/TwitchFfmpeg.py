@@ -5,16 +5,53 @@ import json
 import os
 import requests
 from urllib.parse import urlencode
+import re
+import subprocess
 
 class TwitchFfmpeg:
 
+    video_path = ''
+
     @staticmethod
-    def init():
-        print(TwitchApi.authorize())
+    def load(input):
+        video_path = TwitchFfmpeg.getVideoPath()
+        channel = TwitchConfig.getChannel()
+
+        input = video_path+input
+        key = channel['key']
+        server = channel['server']        
+
+        url = server+key
+        
+        command_list = TwitchConfig.getFfmpeg()
+        command_list = TwitchFfmpeg.setInputForCommand(command_list, input)
+        command_list.append(url)
+
+        subprocess.Popen([command_list], stdout=subprocess.PIPE)
+
+    @staticmethod
+    def setVideoPath(path):
+        if re.search(r'\/$', path) == None:
+            path = path + "/"        
+        TwitchFfmpeg.video_path = path
+
+    @staticmethod
+    def getVideoPath():
+        return TwitchFfmpeg.video_path
+
+    @staticmethod
+    def setInputForCommand(command_list, input):
+        tmp = []
+        for i in command_list:
+            if re.search(r'^\-i (\$1)', i):
+                i = i.replace(i, "-i \""+input+"\" ")
+            tmp.append(i)
+        return tmp
 
 class TwitchApi:
 
     url_oauth = 'https://id.twitch.tv/oauth2/'
+    url_helix = 'https://api.twitch.tv/helix/'
 
     @staticmethod
     def setTokenFromCode():
@@ -76,7 +113,51 @@ class TwitchApi:
         response = response.json()
         TwitchConfig.setToken(response)
 
+    @staticmethod
+    def getBroadcasterId():
+        channel = TwitchConfig.getChannel()
+        client = TwitchConfig.getClient()
+        token = TwitchConfig.getToken()
+
+        headers = {}
+        headers['Client-Id'] = client['client_id']
+        headers['Authorization'] = "Bearer " + token['access_token']        
+
+        params = {}
+        params['login'] = [channel['channel']]
+
+        url = TwitchApi.url_helix+"users?" + urlencode(params, doseq=True)
+        response = requests.get(url, headers=headers)
+        if response.status_code!=200:
+            print("TwitchApi.getBroadcasterId(): Error getting broadcaster_id")
+            return False
+
+        return response.json()['data'][0]['id']
+
+    @staticmethod
+    def setStreamTitle(title):
+        client = TwitchConfig.getClient()
+        token = TwitchConfig.getToken()        
+
+        headers = {}
+        headers['Client-Id'] = client['client_id']
+        headers['Authorization'] = "Bearer " + token['access_token']
+
+        params = {}
+        params['broadcaster_id'] = TwitchApi.getBroadcasterId()
+        params['title'] = title
+
+        url = TwitchApi.url_helix+"channels?"+urlencode(params, doseq=True)
+        response = requests.patch(url, headers=headers)
+        if response.status_code!=204:
+            print("TwitchApi.setStreamTitle(): Error changing title")
+            return False
+        else:
+            return True
+
 class TwitchConfig:
+
+    path = ''
 
     channel_file = 'twitch_channel.json'
     @staticmethod
@@ -115,5 +196,26 @@ class TwitchConfig:
             return False
 
     @staticmethod
-    def getPath():
+    def getDefaultPath():
         return os.path.dirname(os.path.realpath(__file__))+"/"
+
+    @staticmethod
+    def getPath():
+        if TwitchConfig.path == '':
+            TwitchConfig.setPath(TwitchConfig.getDefaultPath())
+        return TwitchConfig.path
+
+    @staticmethod
+    def setPath(path):
+        if re.search(r'\/$', path) == None:
+            path = path + "/"
+        TwitchConfig.path = path
+
+    ffmpeg_file = 'twitch_ffmpeg.json'
+    @staticmethod
+    def getFfmpeg():
+        path = TwitchConfig.getPath()
+        ffmpeg_file = path+TwitchConfig.ffmpeg_file
+        ffmpeg = json.load(open(ffmpeg_file))
+        return ffmpeg
+
