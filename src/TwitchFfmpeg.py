@@ -110,10 +110,7 @@ class TwitchApi:
     def refreshToken():
         client = TwitchConfig.getClient()
         token = TwitchConfig.getToken()
-
-        headers = {}
-        headers['Client-Id'] = client['client_id']
-        headers['Authorization'] = "Bearer " + token['access_token']
+        headers = TwitchApi.getHeaders()
 
         params = {}
         params['grant_type'] = 'refresh_token'
@@ -133,12 +130,7 @@ class TwitchApi:
     @staticmethod
     def getBroadcasterId():
         channel = TwitchConfig.getChannel()
-        client = TwitchConfig.getClient()
-        token = TwitchConfig.getToken()
-
-        headers = {}
-        headers['Client-Id'] = client['client_id']
-        headers['Authorization'] = "Bearer " + token['access_token']        
+        headers = TwitchApi.getHeaders()
 
         params = {}
         params['login'] = [channel['channel']]
@@ -153,12 +145,7 @@ class TwitchApi:
 
     @staticmethod
     def setStreamTitle(title):
-        client = TwitchConfig.getClient()
-        token = TwitchConfig.getToken()        
-
-        headers = {}
-        headers['Client-Id'] = client['client_id']
-        headers['Authorization'] = "Bearer " + token['access_token']
+        headers = TwitchApi.getHeaders()
 
         params = {}
         params['broadcaster_id'] = TwitchApi.getBroadcasterId()
@@ -171,6 +158,17 @@ class TwitchApi:
             return False
         else:
             return True
+
+    @staticmethod
+    def getHeaders():
+        client = TwitchApi.getClient()
+        token = TwitchApi.getToken()
+
+        headers = {}
+        headers['Client-Id'] = client['client_id']
+        headers['Authorization'] = "Bearer " + token['access_token']
+
+        return headers
 
 class TwitchConfig:
 
