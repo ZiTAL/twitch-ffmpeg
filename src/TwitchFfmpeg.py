@@ -13,18 +13,16 @@ class TwitchFfmpeg:
     video_path = ''
 
     @staticmethod
-    def load(input):
-        video_path = TwitchFfmpeg.getVideoPath()
+    def stream(filename):
         channel = TwitchConfig.getChannel()
 
-        input = video_path+input
         key = channel['key']
         server = channel['server']        
 
         url = server+key
         
         command_list = TwitchConfig.getFfmpeg()
-        command_list = TwitchFfmpeg.setInputForCommand(command_list, input)
+        command_list = TwitchFfmpeg.setInputForCommand(command_list, filename)
         command_list.append(url)
 
         subprocess.Popen([command_list], stdout=subprocess.PIPE)
