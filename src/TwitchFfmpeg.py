@@ -12,39 +12,19 @@ class TwitchFfmpeg:
 
     @staticmethod
     def stream(file_name, type):
-        if type === 'filename':
-            TwitchFfmpeg.streamFile(file_name)
-        elif type === 'videolist':
-            TwitchFfmpeg.streamVideoList(file_name)
-
-    @staticmethod
-    def streamFile(file_name):
-        channel = TwitchConfig.getChannel()
-
-        key = channel['key']
-        server = channel['server']
-        url = server+key
-        
-        command_list = TwitchConfig.getFfmpeg('filename')
+        url = TwitchApi.getStreamUrl()
+        config = TwitchConfig.getFfmpeg(type)
         command_list = TwitchFfmpeg.setInputForCommand(command_list, file_name)
-        command_list.append(url)
-
+        command_list.append(url)        
         subprocess.Popen([command_list], stdout=subprocess.PIPE)
 
     @staticmethod
+    def streamFile(file_name):
+        TwitchFfmpeg.stream(file_name, 'filename')
+
+    @staticmethod
     def streamVideoList(video_list):
-        channel = TwitchConfig.getChannel()
-
-        key = channel['key']
-        server = channel['server']        
-
-        url = server+key
-        
-        command_list = TwitchConfig.getFfmpeg('videolist')
-        command_list = TwitchFfmpeg.setInputForCommand(command_list, filename)
-        command_list.append(url)
-
-        subprocess.Popen([command_list], stdout=subprocess.PIPE)        
+        TwitchFfmpeg.stream(file_name, 'videolist')
 
     @staticmethod
     def setVideoPath(path):
@@ -64,6 +44,14 @@ class TwitchFfmpeg:
                 i = i.replace(i, "-i \""+input+"\" ")
             tmp.append(i)
         return tmp
+
+    @staticmethod
+    def getStreamUrl()
+        channel = TwitchConfig.getChannel()
+        key = channel['key']
+        server = channel['server']
+        url = server+key
+        return url    
 
 class TwitchApi:
 
@@ -226,7 +214,6 @@ class TwitchConfig:
             path = path + "/"
         TwitchConfig.path = path
 
-    ffmpeg_file = 'twitch_ffmpeg.json'
     @staticmethod
     def getFfmpeg(type):
         path = TwitchConfig.getPath()
