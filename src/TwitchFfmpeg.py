@@ -10,10 +10,29 @@ import subprocess
 
 class TwitchFfmpeg:
 
-    video_path = ''
+    @staticmethod
+    def stream(file_name, type):
+        if type === 'filename':
+            TwitchFfmpeg.streamFile(file_name)
+        elif type === 'videolist':
+            TwitchFfmpeg.streamVideoList(file_name)
 
     @staticmethod
-    def stream(filename):
+    def streamFile(file_name):
+        channel = TwitchConfig.getChannel()
+
+        key = channel['key']
+        server = channel['server']
+        url = server+key
+        
+        command_list = TwitchConfig.getFfmpeg('filename')
+        command_list = TwitchFfmpeg.setInputForCommand(command_list, file_name)
+        command_list.append(url)
+
+        subprocess.Popen([command_list], stdout=subprocess.PIPE)
+
+    @staticmethod
+    def streamVideoList(video_list):
         channel = TwitchConfig.getChannel()
 
         key = channel['key']
@@ -21,11 +40,11 @@ class TwitchFfmpeg:
 
         url = server+key
         
-        command_list = TwitchConfig.getFfmpeg()
+        command_list = TwitchConfig.getFfmpeg('videolist')
         command_list = TwitchFfmpeg.setInputForCommand(command_list, filename)
         command_list.append(url)
 
-        subprocess.Popen([command_list], stdout=subprocess.PIPE)
+        subprocess.Popen([command_list], stdout=subprocess.PIPE)        
 
     @staticmethod
     def setVideoPath(path):
@@ -211,9 +230,9 @@ class TwitchConfig:
 
     ffmpeg_file = 'twitch_ffmpeg.json'
     @staticmethod
-    def getFfmpeg():
+    def getFfmpeg(type):
         path = TwitchConfig.getPath()
-        ffmpeg_file = path+TwitchConfig.ffmpeg_file
+        ffmpeg_file = path+"twitch_ffmpeg_"+type+".json"
         ffmpeg = json.load(open(ffmpeg_file))
         return ffmpeg
 
