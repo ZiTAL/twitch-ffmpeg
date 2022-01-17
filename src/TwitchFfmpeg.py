@@ -12,11 +12,13 @@ class TwitchFfmpeg:
 
     @staticmethod
     def stream(file_name, type):
-        url = TwitchApi.getStreamUrl()
-        config = TwitchConfig.getFfmpeg(type)
-        command_list = TwitchFfmpeg.setInputForCommand(command_list, file_name)
-        command_list.append(url)        
-        subprocess.Popen([command_list], stdout=subprocess.PIPE)
+        url = TwitchFfmpeg.getStreamUrl()
+        ffmpeg_config = TwitchConfig.getFfmpeg(type)
+        command_list = TwitchFfmpeg.setInputForCommand(ffmpeg_config, file_name)
+        command_list.append(url)
+        command = "".join(command_list)
+        print(command)
+        os.system(command)
 
     @staticmethod
     def streamFile(file_name):
@@ -41,12 +43,12 @@ class TwitchFfmpeg:
         tmp = []
         for i in command_list:
             if re.search(r'^\-i (\$1)', i):
-                i = i.replace(i, "-i \""+input+"\" ")
+                i = i.replace(i, "-i "+input+" ")
             tmp.append(i)
         return tmp
 
     @staticmethod
-    def getStreamUrl()
+    def getStreamUrl():
         channel = TwitchConfig.getChannel()
         key = channel['key']
         server = channel['server']
@@ -149,8 +151,8 @@ class TwitchApi:
 
     @staticmethod
     def getHeaders():
-        client = TwitchApi.getClient()
-        token = TwitchApi.getToken()
+        client = TwitchConfig.getClient()
+        token = TwitchConfig.getToken()
 
         headers = {}
         headers['Client-Id'] = client['client_id']
