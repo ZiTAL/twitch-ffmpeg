@@ -10,36 +10,29 @@ import subprocess
 
 class TwitchFfmpeg:
 
-    @staticmethod
-    def stream(file_name, type):
-        url = TwitchFfmpeg.getStreamUrl()
-        ffmpeg_config = TwitchConfig.getFfmpeg(type)
-        command_list = TwitchFfmpeg.setInputForCommand(ffmpeg_config, file_name)
+    Config = None
+    Api = None
+
+    def __init__(self, config_path = None):
+        self.Config = TwitchConfig(config_path)
+        self.Api = TwitchApi(self.Config)
+
+    def stream(self, file_name, type):
+        url = self.getStreamUrl()
+        ffmpeg_config = self.Config.getFfmpeg(type)
+        command_list = self.setInputForCommand(ffmpeg_config, file_name)
         command_list.append(url)
         command = "".join(command_list)
         print(command)
         os.system(command)
 
-    @staticmethod
-    def streamFile(file_name):
-        TwitchFfmpeg.stream(file_name, 'filename')
+    def streamFile(self, file_name):
+        self.stream(file_name, 'filename')
 
-    @staticmethod
-    def streamVideoList(video_list):
-        TwitchFfmpeg.stream(file_name, 'videolist')
+    def streamVideoList(self, video_list):
+        self.stream(video_list, 'videolist')
 
-    @staticmethod
-    def setVideoPath(path):
-        if re.search(r'\/$', path) == None:
-            path = path + "/"        
-        TwitchFfmpeg.video_path = path
-
-    @staticmethod
-    def getVideoPath():
-        return TwitchFfmpeg.video_path
-
-    @staticmethod
-    def setInputForCommand(command_list, input):
+    def setInputForCommand(self, command_list, input):
         tmp = []
         for i in command_list:
             if re.search(r'^\-i (\$1)', i):
@@ -47,9 +40,8 @@ class TwitchFfmpeg:
             tmp.append(i)
         return tmp
 
-    @staticmethod
-    def getStreamUrl():
-        channel = TwitchConfig.getChannel()
+    def getStreamUrl(self):
+        channel = self.Config.getChannel()
         key = channel['key']
         server = channel['server']
         url = server+key
@@ -57,12 +49,18 @@ class TwitchFfmpeg:
 
 class TwitchApi:
 
-    url_oauth = 'https://id.twitch.tv/oauth2/'
-    url_helix = 'https://api.twitch.tv/helix/'
+    Url = {
+        "oauth": "https://id.twitch.tv/oauth2/",
+        "helix": "https://api.twitch.tv/helix/"
+    }
 
-    @staticmethod
-    def setTokenFromCode():
-        client = TwitchConfig.getClient()
+    Config = None
+
+    def __init__(self, config):
+        self.Config = config
+
+    def setTokenFromCode(self):
+        client = self.Config.getClient()
 
         params = {}
         params['client_id'] = client['client_id']
@@ -70,19 +68,18 @@ class TwitchApi:
         params['response_type'] = 'code'
         params['scope'] = 'channel:manage:broadcast'
 
-        url = TwitchApi.url_oauth+"authorize?"+urlencode(params, doseq=True)
+        url = self.Url['oauth']+"authorize?"+urlencode(params, doseq=True)
         print('Authorization URL:')
         print(url)
 
         code = input('ENTER CODE: ')
         assert len(code) == 30        
 
-        token = TwitchApi.getToken(code)
-        TwitchConfig.setToken(token)
+        token = self.Api.getToken(code)
+        self.Config.setToken(token)
 
-    @staticmethod
-    def getToken(code):
-        client = TwitchConfig.getClient()
+    def getToken(self, code):
+        client = self.Config.getClient()
 
         params = {}
         params['client_id'] =  client['client_id']
@@ -91,16 +88,15 @@ class TwitchApi:
         params['grant_type'] = 'authorization_code'
         params['redirect_uri'] = 'https://localhost'
 
-        response = requests.post(TwitchApi.url_oauth+"token", params)
+        response = requests.post(self.Url['oauth']+"token", params)
         if response.status_code!=200:
             return False
         return response.json()
 
-    @staticmethod
-    def refreshToken():
-        client = TwitchConfig.getClient()
-        token = TwitchConfig.getToken()
-        headers = TwitchApi.getHeaders()
+    def refreshToken(self):
+        client = self.Config.getClient()
+        token = self.Config.getToken()
+        headers = self.getHeaders()
 
         params = {}
         params['grant_type'] = 'refresh_token'
@@ -108,24 +104,24 @@ class TwitchApi:
         params['client_id'] = client['client_id']
         params['client_secret'] = client['client_secret']
 
-        url = TwitchApi.url_oauth+"token"
+        url = self.Url['oauth']+"token"
         response = requests.post(url, params, headers=headers)
         if response.status_code!=200:
             print('TwitchApi.refreshToken(): Error renewing token')
             return False
 
         response = response.json()
-        TwitchConfig.setToken(response)
+        self.Config.setToken(response)
 
-    @staticmethod
-    def getBroadcasterId():
-        channel = TwitchConfig.getChannel()
-        headers = TwitchApi.getHeaders()
+    def getBroadcasterId(self):
+        channel = self.Config.getChannel()
+        headers = self.getHeaders()
 
         params = {}
         params['login'] = [channel['channel']]
 
-        url = TwitchApi.url_helix+"users?" + urlencode(params, doseq=True)
+        url = self.Url['helix']+"users?" + urlencode(params, doseq=True)
+        print(url)
         response = requests.get(url, headers=headers)
         if response.status_code!=200:
             print("TwitchApi.getBroadcasterId(): Error getting broadcaster_id")
@@ -133,15 +129,14 @@ class TwitchApi:
 
         return response.json()['data'][0]['id']
 
-    @staticmethod
-    def setStreamTitle(title):
-        headers = TwitchApi.getHeaders()
+    def setStreamTitle(self, title):
+        headers = self.getHeaders()
 
         params = {}
-        params['broadcaster_id'] = TwitchApi.getBroadcasterId()
+        params['broadcaster_id'] = self.getBroadcasterId()
         params['title'] = title
 
-        url = TwitchApi.url_helix+"channels?"+urlencode(params, doseq=True)
+        url = self.Url['helix']+"channels?"+urlencode(params, doseq=True)
         response = requests.patch(url, headers=headers)
         if response.status_code!=204:
             print("TwitchApi.setStreamTitle(): Error changing title")
@@ -149,10 +144,9 @@ class TwitchApi:
         else:
             return True
 
-    @staticmethod
-    def getHeaders():
-        client = TwitchConfig.getClient()
-        token = TwitchConfig.getToken()
+    def getHeaders(self):
+        client = self.Config.getClient()
+        token = self.Config.getToken()
 
         headers = {}
         headers['Client-Id'] = client['client_id']
@@ -163,35 +157,34 @@ class TwitchApi:
 class TwitchConfig:
 
     path = ''
-
     channel_file = 'twitch_channel.json'
-    @staticmethod
-    def getChannel():
-        path = TwitchConfig.getPath()
-        channel_file = path+TwitchConfig.channel_file
+    client_file = 'twitch_client.json'
+    token_file = 'twitch_token.json'
+
+    def __init__(self, path = None):
+        self.setPath(path)
+
+    def getChannel(self):
+        path = self.getPath()
+        channel_file = path+self.channel_file
         channel = json.load(open(channel_file))
         return channel
-
-    client_file = 'twitch_client.json'
-    @staticmethod
-    def getClient():
-        path = TwitchConfig.getPath()
-        client_file = path+TwitchConfig.client_file
+    
+    def getClient(self):
+        path = self.getPath()
+        client_file = path+self.client_file
         client = json.load(open(client_file))
         return client   
-
-    token_file = 'twitch_token.json'
-    @staticmethod
-    def getToken():
-        path = TwitchConfig.getPath()
-        token_file = path+TwitchConfig.token_file
+    
+    def getToken(self):
+        path = self.getPath()
+        token_file = path+self.token_file
         token = json.load(open(token_file))
         return token
 
-    @staticmethod
-    def setToken(data):
-        path = TwitchConfig.getPath()
-        token_file = path+TwitchConfig.token_file
+    def setToken(self, data):
+        path = self.getPath()
+        token_file = path+self.token_file
         try:
             with open(token_file, 'w') as fp:
                 json.dump(data, fp)
@@ -200,26 +193,21 @@ class TwitchConfig:
             print("TwitchConfig.setToken(): Error writing token to file: "+token_file)
             return False
 
-    @staticmethod
-    def getDefaultPath():
+    def getDefaultPath(self):
         return os.path.dirname(os.path.realpath(__file__))+"/"
 
-    @staticmethod
-    def getPath():
-        if TwitchConfig.path == '':
-            TwitchConfig.setPath(TwitchConfig.getDefaultPath())
-        return TwitchConfig.path
+    def getPath(self):
+        if self.path == '':
+            self.setPath(self.getDefaultPath())
+        return self.path
 
-    @staticmethod
-    def setPath(path):
+    def setPath(self, path = None):
         if re.search(r'\/$', path) == None:
             path = path + "/"
-        TwitchConfig.path = path
+        self.path = path
 
-    @staticmethod
-    def getFfmpeg(type):
-        path = TwitchConfig.getPath()
+    def getFfmpeg(self, type):
+        path = self.getPath()
         ffmpeg_file = path+"twitch_ffmpeg_"+type+".json"
         ffmpeg = json.load(open(ffmpeg_file))
         return ffmpeg
-

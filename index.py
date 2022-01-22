@@ -2,14 +2,9 @@
 # -*- coding: utf-8 -*
 
 from src.TwitchFfmpeg import TwitchFfmpeg
-from src.TwitchFfmpeg import TwitchApi
-from src.TwitchFfmpeg import TwitchConfig
 
-TwitchConfig.setPath('/home/projects/twitch-ffmpeg/config')
-#TwitchApi.setTokenFromCode()
-
-#TwitchApi.refreshToken()
-#TwitchApi.setStreamTitle('froga')
-#TwitchFfmpeg.setVideoPath("/home/zital/Bideoak/dragoi_bola/db")
-TwitchFfmpeg.streamFile(""/home/zital/Bideoak/dragoi_bola/db"/01.mp4")
-TwitchFfmpeg.streamVideoList(""/home/zital/Bideoak/dragoi_bola/db"/01.mp4")
+tf = TwitchFfmpeg('/home/projects/twitch-ffmpeg/config')
+#tf.Api.refreshToken()
+tf.Api.setStreamTitle('FROGA BIDEO ZERRENDA')
+#tf.streamFile('/home/zital/Bideoak/dragoi_bola/db/018.mp4')
+tf.streamVideoList('/home/zital/scripts/bash/twitch/db.list')
