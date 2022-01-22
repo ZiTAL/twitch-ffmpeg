@@ -6,14 +6,14 @@ twitch-ffmpeg: stream through ffmpeg on twitch
 Go to: **https://dev.twitch.tv/console/apps**
 
 ![01](docs/imgs/01.jpg "01")
-![02](docs/imgs/01.jpg "02")
-![03](docs/imgs/01.jpg "03")
-![04](docs/imgs/01.jpg "04")
-![05](docs/imgs/01.jpg "05")
-![06](docs/imgs/01.jpg "06")
-![07](docs/imgs/01.jpg "07")
-![08](docs/imgs/01.jpg "08")
-![09](docs/imgs/01.jpg "09")
+![02](docs/imgs/02.jpg "02")
+![03](docs/imgs/03.jpg "03")
+![04](docs/imgs/04.jpg "04")
+![05](docs/imgs/05.jpg "05")
+![06](docs/imgs/06.jpg "06")
+![07](docs/imgs/07.jpg "07")
+![08](docs/imgs/08.jpg "08")
+![09](docs/imgs/09.jpg "09")
 
 # 2: Create twitch_client.json
 
