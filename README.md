@@ -22,6 +22,7 @@ Go to: **https://dev.twitch.tv/console/apps**
 ```
 
 # 3: Get CODE to create TOKEN
+
 ```
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*
@@ -31,6 +32,7 @@ from src.TwitchFfmpeg import TwitchFfmpeg
 tf = TwitchFfmpeg('/home/projects/twitch-ffmpeg/config')
 tf.Api.setTokenFromCode()
 ```
+
 ![07](docs/imgs/07.jpg "07")
 ![08](docs/imgs/08.jpg "08")
 ![09](docs/imgs/09.jpg "09")
