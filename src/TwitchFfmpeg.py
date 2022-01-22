@@ -75,7 +75,7 @@ class TwitchApi:
         code = input('ENTER CODE: ')
         assert len(code) == 30        
 
-        token = self.Api.getToken(code)
+        token = self.getToken(code)
         self.Config.setToken(token)
 
     def getToken(self, code):
