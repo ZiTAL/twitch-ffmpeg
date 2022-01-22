@@ -11,7 +11,6 @@ Go to: **https://dev.twitch.tv/console/apps**
 ![04](docs/imgs/04.jpg "04")
 ![05](docs/imgs/05.jpg "05")
 ![06](docs/imgs/06.jpg "06")
-![07](docs/imgs/07.jpg "07")
 
 # 2: Create twitch_client.json
 
@@ -23,7 +22,6 @@ Go to: **https://dev.twitch.tv/console/apps**
 ```
 
 # 3: Get CODE to create TOKEN
-![08](docs/imgs/08.jpg "08")
 ```
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*
@@ -33,6 +31,8 @@ from src.TwitchFfmpeg import TwitchFfmpeg
 tf = TwitchFfmpeg('/home/projects/twitch-ffmpeg/config')
 tf.Api.setTokenFromCode()
 ```
+![07](docs/imgs/07.jpg "07")
+![08](docs/imgs/08.jpg "08")
 ![09](docs/imgs/09.jpg "09")
 
 # 4: Set CHANNEL information
