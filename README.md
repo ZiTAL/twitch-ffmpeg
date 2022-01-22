@@ -3,7 +3,9 @@ twitch-ffmpeg: stream through ffmpeg on twitch
 
 # 1: Create APP 
 
-https://dev.twitch.tv/console/apps
+Go to: **https://dev.twitch.tv/console/apps**
+
+![01](documentation/imgs/01.jpg "01")
 
 # 2: Create twitch_client.json
 
@@ -90,7 +92,7 @@ from src.TwitchFfmpeg import TwitchFfmpeg
 
 tf = TwitchFfmpeg('/home/projects/twitch-ffmpeg/config')
 tf.Api.setStreamTitle('Dragoi Bola 18')
-#tf.streamFile('/home/zital/Bideoak/dragoi_bola/db/018.mp4')
+tf.streamFile('/home/zital/Bideoak/dragoi_bola/db/018.mp4')
 ```
 
 # 5: Stream Video List
