@@ -135,8 +135,7 @@ It's a possibility to make and custom filter for ffmpeg creating a file with ffm
     "-i $1 ",
 	"-r hd720 ",
 	"-r 60 ",
-    "-codec copy ",
-    "-f mp4 "
+    "-f flv "
 ]
 ```
 
