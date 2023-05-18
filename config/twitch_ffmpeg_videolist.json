@@ -5,5 +5,6 @@
     "-re ",
     "-i $1 ",
     "-codec copy ",
+    "-bufsize 10000k ",
     "-f flv "
 ]

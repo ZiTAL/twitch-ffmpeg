@@ -1,7 +1,8 @@
 [
-    "/usr/bin/ffmpeg ",   
+    "/usr/bin/ffmpeg ",
     "-re ",
     "-i $1 ",
     "-codec copy ",
+    "-bufsize 10000k ",
     "-f flv "
 ]
