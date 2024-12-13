@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*
 
+import sys
 import json
 import os
 import requests
@@ -23,8 +24,22 @@ class TwitchFfmpeg:
         command_list = self.setInputForCommand(ffmpeg_config, file_name)
         command_list.append(url)
         command = "".join(command_list)
-        print(command)
-        os.system(command)
+        command = command.split()
+
+        process = subprocess.Popen(command)
+        pid     = process.pid
+
+        while self.isProcessRunning(pid):
+            pass
+
+        self.stream(file_name, type)
+
+    def isProcessRunning(pid):
+        try:
+            os.kill(pid, 0)
+        except:
+            return False
+        return True
 
     def streamFile(self, file_name):
         self.stream(file_name, 'filename')
@@ -73,7 +88,7 @@ class TwitchApi:
         print(url)
 
         code = input('ENTER CODE: ')
-        assert len(code) == 30        
+        assert len(code) == 30
 
         token = self.getToken(code)
         self.Config.setToken(token)
