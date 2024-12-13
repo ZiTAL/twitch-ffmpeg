@@ -1,0 +1,8 @@
+[
+    "/usr/local/bin/ffmpeg-jellyfin ",
+    "-i $1 ",
+    "-c:v h264_rkmpp ",
+    "-c:a aac ",
+    "-bufsize 25M",
+    "-f flv "
+]

@@ -8,6 +8,7 @@ import requests
 from urllib.parse import urlencode
 import re
 import subprocess
+import time
 
 class TwitchFfmpeg:
 
@@ -24,22 +25,31 @@ class TwitchFfmpeg:
         command_list = self.setInputForCommand(ffmpeg_config, file_name)
         command_list.append(url)
         command = "".join(command_list)
+
+        """
+        ret = os.system(command)
+        while ret == 0:
+            print(ret)
+            self.stream(file_name, type)
+        """
+
         command = command.split()
 
         process = subprocess.Popen(command)
-        pid     = process.pid
 
-        while self.isProcessRunning(pid):
-            pass
+        while self.isProcessRunning(process):
+            self.streamClearCache()
 
         self.stream(file_name, type)
 
-    def isProcessRunning(pid):
-        try:
-            os.kill(pid, 0)
-        except:
-            return False
-        return True
+    def self.streamClearCache(self):
+# TODO
+        pass
+
+    def isProcessRunning(self, process):
+        if process.poll() is None:
+            return True
+        return False
 
     def streamFile(self, file_name):
         self.stream(file_name, 'filename')
