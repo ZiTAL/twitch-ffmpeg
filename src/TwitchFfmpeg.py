@@ -42,7 +42,7 @@ class TwitchFfmpeg:
 
         self.stream(file_name, type)
 
-    def self.streamClearCache(self):
+    def streamClearCache(self):
 # TODO
         pass
 
